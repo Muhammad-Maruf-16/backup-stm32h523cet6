@@ -1,0 +1,7 @@
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:240:13:LL_SPI_DeInit	0	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:338:13:LL_SPI_Init	16	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:431:6:LL_SPI_StructInit	0	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:551:13:LL_I2S_DeInit	0	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:569:13:LL_I2S_Init	24	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:702:6:LL_I2S_StructInit	0	static
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c:725:6:LL_I2S_ConfigPrescaler	0	static

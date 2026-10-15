@@ -1,0 +1,12 @@
+../Core/Src/dhcp.c:374:13:dhcp_reset	1
+../Core/Src/dhcp.c:364:13:apply_ip_to_w5500	1
+../Core/Src/dhcp.c:304:16:parse_dhcp_response.constprop	24
+../Core/Src/dhcp.c:129:13:wait_cr_clear.constprop	3
+../Core/Src/dhcp.c:187:13:S1_SendUDP.constprop	4
+../Core/Src/dhcp.c:223:17:S1_RecvUDP.constprop	2
+../Core/Src/dhcp.c:178:13:S1_Close	1
+../Core/Src/dhcp.c:156:13:S1_OpenUDP	4
+../Core/Src/dhcp.c:252:17:build_dhcp_packet.isra	2
+../Core/Src/dhcp.c:388:6:DHCP_Init	1
+../Core/Src/dhcp.c:401:9:DHCP_IsBound	1
+../Core/Src/dhcp.c:407:6:DHCP_Process	22

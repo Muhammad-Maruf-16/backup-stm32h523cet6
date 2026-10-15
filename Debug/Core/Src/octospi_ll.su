@@ -1,0 +1,10 @@
+../Core/Src/octospi_ll.c:183:6:OCTOSPI1_LL_SendCmd	0	static
+../Core/Src/octospi_ll.c:208:6:OCTOSPI1_LL_EnableQuadMode	16	static
+../Core/Src/octospi_ll.c:225:6:OCTOSPI1_LL_MemoryMapped	0	static
+../Core/Src/octospi_ll.c:273:6:OCTOSPI1_LL_IndirectInit	0	static,ignoring_inline_asm
+../Core/Src/octospi_ll.c:284:6:OCTOSPI1_LL_Init	8	static
+../Core/Src/octospi_ll.c:292:6:Flash_ReadBytes	8	static
+../Core/Src/octospi_ll.c:318:6:ExtFlash_WaitBusy	12	static
+../Core/Src/octospi_ll.c:338:6:ExtFlash_WriteEnable	0	static
+../Core/Src/octospi_ll.c:343:6:ExtFlash_EraseSector	8	static
+../Core/Src/octospi_ll.c:363:6:ExtFlash_WritePage	16	static
