@@ -6,7 +6,7 @@
   *                   - Konsep kerja identik dengan referensi sha256
   *                   - Bebas snprintf/newlib crash (zero heap, static buffers)
   *                   - W5500 via SPI1 + DHCP Socket 1 + Web OTA Socket 0
-  *                   - Target: Tulis firmware ke OctoSPI Flash (XIP Slot: 0x90011000)
+  *                   - Target: Tulis firmware ke OctoSPI Flash (XIP Slot: 0x90001000)
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -14,6 +14,7 @@
 #include "main.h"
 #include "crc.h"
 #include "spi.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -22,6 +23,7 @@
 #include "dhcp.h"
 #include "html_updater.h"
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 /* USER CODE END Includes */
 
@@ -39,7 +41,7 @@
 #define FLASH_APP_META          (FLASH_APP_BASE)                       /* 0x00000000 */
 #define FLASH_APP_BIN           (FLASH_APP_META + 4096UL)              /* 0x00001000 */
 #define STAGING_FLAG_VALID      0xA5U
-#define MAX_FIRMWARE_SIZE       (4UL * 1024UL * 1024UL)                /* 4 MB */
+#define MAX_FIRMWARE_SIZE       (1UL * 1024UL * 1024UL)                /* 1 MB */
 
 /* --------------------------------------------------------------------------
  * W5500 ETHERNET DEFINES (Persis sha256)
@@ -197,11 +199,21 @@ void W5500_InitNetwork(void)
     W5500_WriteBuf(0x0005, W5500_COMMON_REG_OP, zero, 4); /* Subnet */
     W5500_WriteBuf(0x000F, W5500_COMMON_REG_OP, zero, 4); /* IP */
 
-    /* Alokasi buffer: Socket 0 = 8KB TX / 8KB RX, Socket 1 = 2KB TX / 2KB RX */
+    /* Alokasi buffer W5500 (Total TX/RX maks 16 KB):
+     * Socket 0 (Web OTA) = 8 KB (Mask 0x1FFF)
+     * Socket 1 (DHCP)    = 2 KB (Mask 0x7FF)
+     * Socket 2..7        = 0 KB (Unused, agar total 10 KB <= 16 KB) */
     W5500_WriteReg(0x001E, W5500_S0_REG_OP, 8);
     W5500_WriteReg(0x001F, W5500_S0_REG_OP, 8);
     W5500_WriteReg(0x001E, 0x28,            2);
     W5500_WriteReg(0x001F, 0x28,            2);
+
+    for (uint8_t s = 2; s < 8; s++)
+    {
+        uint8_t blk = (s << 5) | 0x08; /* Socket s register block (0x48..0xE8) */
+        W5500_WriteReg(0x001E, blk, 0);
+        W5500_WriteReg(0x001F, blk, 0);
+    }
 }
 
 static void W5500_WaitCR(uint8_t block, uint32_t timeout_ms)
@@ -553,6 +565,26 @@ void Process_Web_OTA(void)
         while (W5500_ReadReg(Sn_CR, W5500_S0_REG_OP));
     }
 }
+
+/* ==============================================================================
+ * UART DHCP STATUS REPORTER
+ * ============================================================================== */
+static void UART_PrintDHCPStatus(void)
+{
+    char buf[64];
+    int len = snprintf(buf, sizeof(buf), "%d.%d.%d.%d (Status: %d)\r\n",
+                       (int)g_dhcp_ip[0], (int)g_dhcp_ip[1],
+                       (int)g_dhcp_ip[2], (int)g_dhcp_ip[3],
+                       (int)g_dhcp_state);
+    if (len > 0)
+    {
+        for (int i = 0; i < len; i++)
+        {
+            while (!LL_USART_IsActiveFlag_TXE_TXFNF(USART1));
+            LL_USART_TransmitData8(USART1, (uint8_t)buf[i]);
+        }
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -564,7 +596,7 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
   /* Relokasi Vector Table ke alamat aplikasi di internal flash */
-  SCB->VTOR = 0x08001000UL;
+  SCB->VTOR = 0x08002000UL;
   __enable_irq();
   /* USER CODE END 1 */
 
@@ -592,6 +624,7 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_CRC_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   /* Enable SPI1 Master Transfer */
   LL_SPI_SetTransferSize(SPI1, 0);
@@ -617,6 +650,26 @@ int main(void)
     /* USER CODE BEGIN 3 */
     DHCP_Process();
 
+    /* Trigger 1: Cetak saat berhasil dapat IP DHCP (edge-triggered) */
+    static uint8_t s_dhcp_bound_last = 0;
+    uint8_t is_bound = DHCP_IsBound();
+    if (is_bound && !s_dhcp_bound_last)
+    {
+        UART_PrintDHCPStatus();
+    }
+    s_dhcp_bound_last = is_bound;
+
+    /* Trigger 2: Cetak saat ada karakter masuk di USART1 RX */
+    if (LL_USART_IsActiveFlag_ORE(USART1))
+    {
+        LL_USART_ClearFlag_ORE(USART1);
+    }
+    if (LL_USART_IsActiveFlag_RXNE_RXFNE(USART1))
+    {
+        (void)LL_USART_ReceiveData8(USART1);
+        UART_PrintDHCPStatus();
+    }
+
     if (DHCP_IsBound())
     {
         Process_Web_OTA();
@@ -640,7 +693,6 @@ void SystemClock_Config(void)
   while (LL_PWR_IsActiveFlag_VOS() == 0)
   {
   }
-
   LL_RCC_HSE_Enable();
 
    /* Wait till HSE is ready */
@@ -652,12 +704,10 @@ void SystemClock_Config(void)
   LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
   LL_RCC_PLL1_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
   LL_RCC_PLL1_SetM(2);
-  LL_RCC_PLL1_SetN(62);
+  LL_RCC_PLL1_SetN(40);
   LL_RCC_PLL1_SetP(2);
   LL_RCC_PLL1_SetQ(2);
   LL_RCC_PLL1_SetR(2);
-  LL_RCC_PLL1_SetFRACN(4096);
-  LL_RCC_PLL1FRACN_Enable();
   LL_RCC_PLL1P_Enable();
   LL_RCC_PLL1_Enable();
 
@@ -666,7 +716,6 @@ void SystemClock_Config(void)
   {
   }
 
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL1);
 
    /* Wait till System clock is ready */
@@ -674,13 +723,17 @@ void SystemClock_Config(void)
   {
   }
 
+  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
   LL_RCC_SetAPB3Prescaler(LL_RCC_APB3_DIV_1);
-
-  LL_Init1msTick(250000000);
-
   LL_SetSystemCoreClock(250000000);
+
+   /* Update the time base */
+  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
 
 /**
@@ -725,8 +778,14 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -1,0 +1,5 @@
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c:140:13:LL_USART_DeInit	7
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c:283:13:LL_USART_Init	12
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c:441:6:LL_USART_StructInit	1
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c:468:13:LL_USART_ClockInit	2
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c:515:6:LL_USART_ClockStructInit	1

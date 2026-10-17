@@ -36,6 +36,7 @@ Core/Src/dhcp.o: ../Core/Src/dhcp.c ../Core/Inc/dhcp.h ../Core/Inc/main.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_utils.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_dma.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_spi.h \
+ ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_usart.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_gpio.h
 ../Core/Inc/dhcp.h:
 ../Core/Inc/main.h:
@@ -76,4 +77,5 @@ Core/Src/dhcp.o: ../Core/Src/dhcp.c ../Core/Inc/dhcp.h ../Core/Inc/main.h \
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_utils.h:
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_dma.h:
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_spi.h:
+../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_usart.h:
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_gpio.h:

@@ -26,6 +26,7 @@ C_SRCS += \
 ../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_pwr.c \
 ../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_rcc.c \
 ../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.c \
+../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.c \
 ../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_utils.c 
 
 OBJS += \
@@ -50,6 +51,7 @@ OBJS += \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_pwr.o \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_rcc.o \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.o \
+./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.o \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_utils.o 
 
 C_DEPS += \
@@ -74,6 +76,7 @@ C_DEPS += \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_pwr.d \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_rcc.d \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_spi.d \
+./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_usart.d \
 ./Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_utils.d 
 
 

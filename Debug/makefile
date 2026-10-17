@@ -52,6 +52,9 @@ default.size.stdout \
 OBJDUMP_LIST += \
 backup\ stm32h523cet6.list \
 
+OBJCOPY_BIN += \
+backup\ stm32h523cet6.bin \
+
 
 # All Target
 all: main-build
@@ -75,12 +78,17 @@ backup\ stm32h523cet6.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL
 	@echo 'Finished building: $@'
 	@echo ' '
 
+backup\ stm32h523cet6.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "backup stm32h523cet6.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) backup\ stm32h523cet6.elf backup\ stm32h523cet6.list backup\ stm32h523cet6.map backup\\ stm32h523cet6.elf default.size.stdout
+	-$(RM) backup\ stm32h523cet6.bin backup\ stm32h523cet6.elf backup\ stm32h523cet6.list backup\ stm32h523cet6.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
